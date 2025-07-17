@@ -1,0 +1,6 @@
+node_modules/
+.env
+.DS_Store
+*.log
+tweet_backups/
+deleted_tweets.json

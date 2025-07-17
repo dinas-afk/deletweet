@@ -1,0 +1,22 @@
+{
+  "name": "twitter-tweet-deleter",
+  "version": "1.0.0",
+  "description": "A script to delete tweets using Twitter API v2",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "twitter-api-v2": "^1.15.0",
+    "dotenv": "^16.0.3",
+    "inquirer": "^9.0.0",
+    "cli-progress": "^3.12.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  },
+  "keywords": ["twitter", "api", "tweet", "delete"],
+  "author": "Your Name",
+  "license": "MIT"
+}
