@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter Tweet Deleter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #1da1f2;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #1da1f2;
+        }
+
+        .btn {
+            background: #1da1f2;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            background: #1991db;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-success {
+            background: #27ae60;
+        }
+
+        .tweets-grid {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .tweet-card {
+            border: 2px solid #e1e8ed;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tweet-card:hover {
+            border-color: #1da1f2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(29, 161, 242, 0.2);
+        }
+
+        .tweet-card.selected {
+            border-color: #1da1f2;
+            background: #f0f8ff;
+        }
+
+        .tweet-text {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .tweet-meta {
+            color: #657786;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .selection-controls {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e1e8ed;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1da1f2, #27ae60);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #e1e8ed;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1da1f2;
+        }
+
+        .stat-label {
+            color: #657786;
+            margin-top: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #e1e8ed;
+            border-top: 4px solid #1da1f2;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .checkbox {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐦 Twitter Tweet Deleter</h1>
+            <p>Select and delete your tweets with ease</p>
+        </div>
+
+        <div class="content">
+            <div class="status-card">
+                <h3>🔧 System Status</h3>
+                <p id="status-text">Initializing...</p>
+                <button id="init-btn" class="btn" onclick="initialize()">Initialize Connection</button>
+                <button id="load-tweets-btn" class="btn" onclick="loadTweets()" disabled>Load Tweets</button>
+            </div>
+
+            <div id="tweets-section" style="display: none;">
+                <div class="selection-controls">
+                    <h3>📋 Tweet Selection</h3>
+                    <button class="btn" onclick="selectAll()">Select All</button>
+                    <button class="btn" onclick="selectNone()">Deselect All</button>
+                    <button class="btn" onclick="selectOld()">Select Older Than 1 Year</button>
+                    <button id="delete-btn" class="btn btn-danger" onclick="deleteSelected()" disabled>
+                        Delete Selected (<span id="selected-count">0</span>)
+                    </button>
+                </div>
+
+                <div id="tweets-container">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading your tweets...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-section" class="progress-container">
+                <h3>🚀 Deletion Progress</h3>
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <p id="progress-text">Preparing deletion...</p>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div id="deleted-count" class="stat-number">0</div>
+                        <div class="stat-label">Deleted</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="failed-count" class="stat-number">0</div>
+                        <div class="stat-label">Failed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="total-count" class="stat-number">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
